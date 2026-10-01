@@ -1,0 +1,10 @@
+[33mea6d04f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m style: prevent footer text selection
+[33m583bf46[m style: add active click feedback for quest card
+[33mdaec1e2[m docs: add architecture comments to App component
+[33mb708d33[m fix: update page title in index.html
+[33md2b8e06[m style: add smooth scroll behavior
+[33mcada69d[m docs: add README file with project title
+[33m4e7d1ae[m fix: update quests json import path
+[33mf8c6679[m style: add mobile responsive breakpoint for body typography
+[33me48c7ad[m feat: complete all 6 functional components with props and modal logic
+[33me5b9867[m feat: setup basic styles, mock data and Header/Hero components

@@ -6,7 +6,7 @@ const Footer = ({ companyName }) => {
     <footer id="footer" className="footer">
       <div className="footer-content">
         <p>&copy; 2026 {companyName}. Все права защищены.</p>
-        <p>Адрес: г. Минск, ул. Квестов, д. 10</p>
+        <p>Адрес: г. Могилёв, пер. Тани Карпинской 4б</p>
       </div>
     </footer>
   );

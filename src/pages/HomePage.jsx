@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Container,
-  Grid,
   TextField,
   MenuItem,
   Box,
@@ -25,14 +24,14 @@ const HomePage = ({ quests, onSelectQuest, favorites, onToggleFavorite }) => {
   });
 
   return (
-    <Box sx={{ pb: 6 }}>
+    <Box sx={{ pb: 6, width: '100%' }}>
       <Hero 
         title="Забронируй лучший квест в Минске" 
         subtitle="Живые эмоции, сложные загадки и профессиональные актеры" 
       />
 
-      <Container maxWidth="xl" sx={{ mt: 4 }}>
-        {/* Фильтры и поиск */}
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        {/* Панель поиска и фильтров */}
         <Box 
           sx={{ 
             display: 'flex', 
@@ -40,12 +39,13 @@ const HomePage = ({ quests, onSelectQuest, favorites, onToggleFavorite }) => {
             mb: 4, 
             flexDirection: { xs: 'column', sm: 'row' },
             backgroundColor: '#262626',
-            p: 2.5,
+            p: 2,
             borderRadius: 2
           }}
         >
           <TextField
             fullWidth
+            size="small"
             placeholder="Поиск квеста по названию..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -61,6 +61,7 @@ const HomePage = ({ quests, onSelectQuest, favorites, onToggleFavorite }) => {
 
           <TextField
             select
+            size="small"
             label="Жанр"
             value={selectedGenre}
             onChange={(e) => setSelectedGenre(e.target.value)}
@@ -75,24 +76,33 @@ const HomePage = ({ quests, onSelectQuest, favorites, onToggleFavorite }) => {
           </TextField>
         </Box>
 
-        {/* Сетка квестов */}
+        {/* Нативная CSS Grid сетка */}
         {filteredQuests.length === 0 ? (
           <Typography align="center" variant="h6" color="gray" sx={{ py: 6 }}>
             Ничего не найдено по вашему запросу.
           </Typography>
         ) : (
-          <Grid container spacing={3}>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+              },
+              gap: 3,
+            }}
+          >
             {filteredQuests.map((quest) => (
-              <Grid item key={quest.id} xs={12} sm={6} md={4}>
-                <QuestCard
-                  quest={quest}
-                  onSelectQuest={onSelectQuest}
-                  isFavorite={favorites.includes(quest.id)}
-                  onToggleFavorite={onToggleFavorite}
-                />
-              </Grid>
+              <QuestCard
+                key={quest.id}
+                quest={quest}
+                onSelectQuest={onSelectQuest}
+                isFavorite={favorites.includes(quest.id)}
+                onToggleFavorite={onToggleFavorite}
+              />
             ))}
-          </Grid>
+          </Box>
         )}
       </Container>
     </Box>
