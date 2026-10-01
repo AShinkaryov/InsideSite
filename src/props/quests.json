@@ -31,5 +31,38 @@
     "price": 100,
     "description": "Найдите спрятанный клад черной бороды до того, как корабль затонет.",
     "image": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600"
+  },
+  {
+    "id": 4,
+    "title": "Обитель Зла",
+    "genre": "Хоррор",
+    "duration": "80 мин",
+    "players": "2-6 чел",
+    "rating": 5.0,
+    "price": 140,
+    "description": "Секретная лаборатория вышла из-под контроля. Выживите в зараженном бункере.",
+    "image": "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600"
+  },
+  {
+    "id": 5,
+    "title": "Шерлок Холмс: Игра теней",
+    "genre": "Детектив",
+    "duration": "60 мин",
+    "players": "2-5 чел",
+    "rating": 4.9,
+    "price": 115,
+    "description": "Распутайте самое сложное дело XIX века вместе с легендарным сыщиком.",
+    "image": "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600"
+  },
+  {
+    "id": 6,
+    "title": "Затерянный город Атлантида",
+    "genre": "Фантастика",
+    "duration": "70 мин",
+    "players": "3-6 чел",
+    "rating": 4.8,
+    "price": 130,
+    "description": "Погрузитесь на дно океана и раскройте секреты древней цивилизации.",
+    "image": "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600"
   }
 ]
