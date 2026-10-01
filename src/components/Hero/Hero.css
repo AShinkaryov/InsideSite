@@ -1,0 +1,27 @@
+.hero {
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+              url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=1200') center/cover;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.hero-content h2 {
+  font-size: 2.2rem;
+  margin-bottom: 0.8rem;
+}
+
+.hero-content p {
+  font-size: 1.1rem;
+  color: #ccc;
+  margin-bottom: 1.5rem;
+}
+
+.hero-btn {
+  display: inline-block;
+  padding: 0.7rem 1.8rem;
+  background: #ff4757;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+}
