@@ -1,0 +1,75 @@
+.quest-card {
+  background: #222;
+  border-radius: 10px;
+  overflow: hidden;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s;
+}
+
+.quest-card:hover {
+  transform: translateY(-4px);
+}
+
+.quest-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.quest-info {
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.quest-genre {
+  color: #ff4757;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.quest-info h3 {
+  margin: 0.4rem 0;
+}
+
+.quest-desc {
+  font-size: 0.85rem;
+  color: #aaa;
+  margin-bottom: 1rem;
+}
+
+.quest-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 1rem;
+  background: #333;
+  padding: 0.4rem 0.6rem;
+  border-radius: 5px;
+}
+
+.quest-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.quest-price {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.book-btn {
+  background: #ff4757;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
