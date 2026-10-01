@@ -73,3 +73,4 @@
   cursor: pointer;
   font-weight: bold;
 }
+.quest-card:active { transform: scale(0.98); }
