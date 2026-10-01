@@ -4,7 +4,7 @@ import Hero from './components/Hero/Hero';
 import QuestList from './components/QuestList/QuestList';
 import BookingModal from './components/BookingModal/BookingModal';
 import Footer from './components/Footer/Footer';
-import initialQuests from './data/quests.json';
+import initialQuests from "./props/quests.json";
 
 const App = () => {
   const companyName = "ExtraQuest BY";
