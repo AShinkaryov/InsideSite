@@ -17,9 +17,11 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import GroupIcon from '@mui/icons-material/Group';
+import { useTranslation } from 'react-i18next';
 
 const QuestCard = ({ quest, onSelectQuest, isFavorite, onToggleFavorite }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <Card 
@@ -32,7 +34,6 @@ const QuestCard = ({ quest, onSelectQuest, isFavorite, onToggleFavorite }) => {
         backgroundColor: '#1f1f1f',
         color: '#fff',
         borderRadius: 2.5,
-        overflow: 'hidden',
         boxShadow: '0 4px 15px rgba(0,0,0,0.4)',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease',
         '&:hover': {
@@ -41,11 +42,10 @@ const QuestCard = ({ quest, onSelectQuest, isFavorite, onToggleFavorite }) => {
         }
       }}
     >
-      {/* Картинка */}
       <Box sx={{ position: 'relative' }}>
         <CardMedia
           component="img"
-          height="140"
+          height="160"
           image={quest.image}
           alt={quest.title}
           sx={{ objectFit: 'cover' }}
@@ -54,33 +54,25 @@ const QuestCard = ({ quest, onSelectQuest, isFavorite, onToggleFavorite }) => {
           label={quest.genre} 
           color="error" 
           size="small" 
-          sx={{ position: 'absolute', top: 10, left: 10, fontWeight: 'bold', height: 24, fontSize: '0.75rem' }} 
+          sx={{ position: 'absolute', top: 10, left: 10, fontWeight: 'bold' }} 
         />
         <IconButton 
-          onClick={() => onToggleFavorite(quest.id)}
+          onClick={() => onToggleFavorite && onToggleFavorite(quest.id)}
           size="small"
-          sx={{ 
-            position: 'absolute', 
-            top: 8, 
-            right: 8, 
-            backgroundColor: 'rgba(0,0,0,0.6)',
-            color: isFavorite ? '#e74c3c' : '#fff',
-            '&:hover': { backgroundColor: 'rgba(0,0,0,0.8)' }
-          }}
+          sx={{ position: 'absolute', top: 8, right: 8, backgroundColor: 'rgba(0,0,0,0.6)', color: isFavorite ? '#e74c3c' : '#fff' }}
         >
           {isFavorite ? <FavoriteIcon fontSize="small" /> : <FavoriteBorderIcon fontSize="small" />}
         </IconButton>
       </Box>
 
-      {/* Компактное содержимое */}
-      <CardContent sx={{ flexGrow: 1, p: 2, pb: 1, display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <CardContent sx={{ flexGrow: 1, p: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
         <Typography 
           variant="h6" 
           component="div" 
           sx={{ 
             fontWeight: 'bold', 
-            fontSize: '1.05rem',
-            lineHeight: 1.25,
+            fontSize: '1rem',
+            lineHeight: 1.3,
             display: '-webkit-box',
             WebkitLineClamp: 1,
             WebkitBoxOrient: 'vertical',
@@ -123,29 +115,29 @@ const QuestCard = ({ quest, onSelectQuest, isFavorite, onToggleFavorite }) => {
         </Stack>
       </CardContent>
 
-      {/* Нижняя панель */}
-      <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 1.5, pt: 0 }}>
+      <CardActions sx={{ justifyContent: 'space-between', px: 2, pb: 2, pt: 0 }}>
         <Typography variant="subtitle1" sx={{ color: '#e74c3c', fontWeight: 'bold' }}>
-          {quest.price} BYN
+          {quest.price} {t('price', 'BYN')}
         </Typography>
         <Box sx={{ display: 'flex', gap: 1 }}>
+          {/* Кнопка ИНФО -> Переход на страницу подробного описания (/quest/:id) */}
           <Button 
             size="small" 
             variant="outlined" 
             color="inherit" 
             onClick={() => navigate(`/quest/${quest.id}`)}
-            sx={{ px: 1.5, minWidth: 'auto', fontSize: '0.75rem' }}
           >
-            Инфо
+            {t('btn_info', 'Инфо')}
           </Button>
+
+          {/* Кнопка БРОНЬ -> Открывает модальное окно бронирования времени */}
           <Button 
             size="small" 
             variant="contained" 
             color="error" 
             onClick={() => onSelectQuest(quest)}
-            sx={{ px: 1.5, minWidth: 'auto', fontSize: '0.75rem' }}
           >
-            Бронь
+            {t('btn_book', 'Забронировать')}
           </Button>
         </Box>
       </CardActions>

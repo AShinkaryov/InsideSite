@@ -1,66 +1,61 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import {
-  AppBar,
-  Toolbar,
-  Typography,
-  Button,
-  Badge,
-  IconButton,
-  Tooltip,
-  Container,
-  Box
-} from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Box, Badge, IconButton, Tooltip } from '@mui/material';
+import { Link } from 'react-router-dom';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
-import ExploreIcon from '@mui/icons-material/Explore';
+import LanguageIcon from '@mui/icons-material/Language';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
-const Header = ({ favoritesCount = 0 }) => {
-  const navigate = useNavigate();
+const Header = () => {
+  const { t, i18n } = useTranslation();
+  const favoriteCount = useSelector((state) => state.favorites?.items?.length || 0);
+
+  const toggleLanguage = () => {
+    const currentLang = i18n.language || 'ru';
+    const nextLang = currentLang.startsWith('ru') ? 'en' : 'ru';
+    i18n.changeLanguage(nextLang);
+  };
+
+  const currentLang = (i18n.language || 'ru').toUpperCase().slice(0, 2);
 
   return (
-    <AppBar position="sticky" sx={{ backgroundColor: '#1a1a1a', boxShadow: 3 }}>
-      <Container maxWidth="xl">
-        <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
-          
-          {/* Логотип */}
-          <Box 
-            onClick={() => navigate('/')} 
-            sx={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: 1 }}
-          >
-            <ExploreIcon sx={{ color: '#e74c3c', fontSize: 32 }} />
-            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#fff', letterSpacing: 1 }}>
-              ExtraQuest <span style={{ color: '#e74c3c' }}>BY</span>
-            </Typography>
-          </Box>
+    <AppBar position="static" sx={{ backgroundColor: '#181818', borderBottom: '1px solid #333' }}>
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <Typography 
+          variant="h6" 
+          component={Link} 
+          to="/" 
+          sx={{ color: '#e74c3c', textDecoration: 'none', fontWeight: 'bold' }}
+        >
+          ExtraQuest BY
+        </Typography>
 
-          {/* Навигация */}
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Button color="inherit" component={Link} to="/">
-              Квесты
-            </Button>
-            
-            <Tooltip title="Избранные квесты">
-              <IconButton color="inherit" component={Link} to="/">
-                <Badge badgeContent={favoritesCount} color="error">
-                  <FavoriteIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          {/* Квесты с сердечком */}
+          <Button color="inherit" component={Link} to="/">
+            {t('quests', 'Квесты')}
+            <Badge badgeContent={favoriteCount} color="error" sx={{ ml: 1.5 }}>
+              <FavoriteIcon fontSize="small" />
+            </Badge>
+          </Button>
 
-            <Button 
-              variant="outlined" 
-              color="error" 
-              startIcon={<AdminPanelSettingsIcon />}
-              component={Link} 
-              to="/admin"
+          {/* Иконка переключения языка */}
+          <Tooltip title={`Язык: ${currentLang}`}>
+            <IconButton 
+              onClick={toggleLanguage} 
+              color="inherit" 
+              sx={{ color: '#aaa', '&:hover': { color: '#fff' } }}
             >
-              Админ-панель
-            </Button>
-          </Box>
+              <LanguageIcon />
+            </IconButton>
+          </Tooltip>
 
-        </Toolbar>
-      </Container>
+          {/* Кнопка админки */}
+          <Button variant="contained" color="error" component={Link} to="/admin">
+            {t('admin_panel', 'Админ-панель')}
+          </Button>
+        </Box>
+      </Toolbar>
     </AppBar>
   );
 };

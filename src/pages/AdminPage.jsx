@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   Container,
   Typography,
@@ -11,132 +12,124 @@ import {
   TableRow,
   Paper,
   IconButton,
-  Box,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Stack
+  Box
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useTranslation } from 'react-i18next';
+import { addQuest, updateQuest, deleteQuest } from '../store/questsSlice';
+import QuestModal from '../components/QuestModal/QuestModal';
 
-const AdminPage = ({ quests, onDeleteQuest, onAddQuest }) => {
-  const [open, setOpen] = useState(false);
-  const [newQuest, setNewQuest] = useState({
-    title: '',
-    genre: 'Хоррор',
-    price: '',
-    duration: '60 мин',
-    players: '2-4 чел',
-    description: '',
-    image: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600'
+const AdminPage = () => {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+
+  // Безопасное получение массива квестов (защита от undefined)
+  const quests = useSelector((state) => {
+    if (Array.isArray(state.quests?.items)) return state.quests.items;
+    if (Array.isArray(state.quests)) return state.quests;
+    return [];
   });
 
-  const handleCreate = (e) => {
-    e.preventDefault();
-    if (!newQuest.title || !newQuest.price) return;
-    
-    onAddQuest({
-      ...newQuest,
-      id: Date.now(),
-      rating: 5.0,
-      price: Number(newQuest.price)
-    });
+  const [isModalOpen, setIsModalOpen] = useS;tate(false)
+  const [questToEdit, setQuestToEdit] = useState(null);
 
-    setOpen(false);
-    setNewQuest({ title: '', genre: 'Хоррор', price: '', duration: '60 мин', players: '2-4 чел', description: '', image: 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?w=600' });
+  const handleOpenAdd = () => {
+    setQuestToEdit(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (quest) => {
+    setQuestToEdit(quest);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = (formData) => {
+    if (questToEdit) {
+      if (typeof updateQuest === 'function') dispatch(updateQuest(formData));
+    } else {
+      if (typeof addQuest === 'function') dispatch(addQuest(formData));
+    }
+  };
+
+  const handleDelete = (id) => {
+    if (typeof deleteQuest === 'function') dispatch(deleteQuest(id));
   };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
-          Управление квестами (Админ)
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#fff' }}>
+          {t('admin_panel', 'Управление квестами (Админ)')}
         </Typography>
         <Button 
           variant="contained" 
           color="error" 
           startIcon={<AddIcon />} 
-          onClick={() => setOpen(true)}
+          onClick={handleOpenAdd}
         >
-          Добавить квест
+          {t('btn_add', 'Добавить квест')}
         </Button>
       </Box>
 
-      <TableContainer component={Paper} sx={{ backgroundColor: '#262626' }}>
+      <TableContainer component={Paper} sx={{ backgroundColor: '#1f1f1f' }}>
         <Table>
-          <TableHead sx={{ backgroundColor: '#1a1a1a' }}>
+          <TableHead>
             <TableRow>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>ID</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Название</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Жанр</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>Цена</TableCell>
-              <TableCell sx={{ color: '#fff', fontWeight: 'bold' }} align="right">Действия</TableCell>
+              <TableCell sx={{ color: '#aaa', fontWeight: 'bold' }}>ID</TableCell>
+              <TableCell sx={{ color: '#aaa', fontWeight: 'bold' }}>Название</TableCell>
+              <TableCell sx={{ color: '#aaa', fontWeight: 'bold' }}>Жанр</TableCell>
+              <TableCell sx={{ color: '#aaa', fontWeight: 'bold' }}>Цена</TableCell>
+              <TableCell align="right" sx={{ color: '#aaa', fontWeight: 'bold' }}>Действия</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {quests.map((q) => (
-              <TableRow key={q.id}>
-                <TableCell sx={{ color: '#ccc' }}>{q.id}</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>{q.title}</TableCell>
-                <TableCell sx={{ color: '#ccc' }}>{q.genre}</TableCell>
-                <TableCell sx={{ color: '#e74c3c', fontWeight: 'bold' }}>{q.price} BYN</TableCell>
-                <TableCell align="right">
-                  <IconButton color="error" onClick={() => onDeleteQuest(q.id)}>
-                    <DeleteIcon />
-                  </IconButton>
+            {quests.length > 0 ? (
+              quests.map((quest) => (
+                <TableRow key={quest.id}>
+                  <TableCell sx={{ color: '#fff' }}>{quest.id}</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 'bold' }}>{quest.title}</TableCell>
+                  <TableCell sx={{ color: '#aaa' }}>{quest.genre}</TableCell>
+                  <TableCell sx={{ color: '#e74c3c', fontWeight: 'bold' }}>{quest.price} BYN</TableCell>
+                  <TableCell align="right">
+                    <IconButton 
+                      onClick={() => handleOpenEdit(quest)} 
+                      sx={{ color: '#4caf50', mr: 1 }}
+                      title="Редактировать"
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton 
+                      onClick={() => handleDelete(quest.id)} 
+                      sx={{ color: '#f44336' }}
+                      title="Удалить"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ color: '#888', py: 3 }}>
+                  Квесты не найдены
                 </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {/* Модалка добавления */}
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ background: '#1a1a1a', color: '#fff' }}>Добавить новый квест</DialogTitle>
-        <form onSubmit={handleCreate}>
-          <DialogContent sx={{ background: '#262626', color: '#fff' }}>
-            <Stack spacing={2} sx={{ pt: 1 }}>
-              <TextField 
-                label="Название" 
-                required 
-                fullWidth 
-                value={newQuest.title} 
-                onChange={(e) => setNewQuest({...newQuest, title: e.target.value})}
-                InputLabelProps={{ style: { color: '#aaa' } }}
-                sx={{ input: { color: '#fff' } }}
-              />
-              <TextField 
-                label="Цена (BYN)" 
-                type="number" 
-                required 
-                fullWidth 
-                value={newQuest.price} 
-                onChange={(e) => setNewQuest({...newQuest, price: e.target.value})}
-                InputLabelProps={{ style: { color: '#aaa' } }}
-                sx={{ input: { color: '#fff' } }}
-              />
-              <TextField 
-                label="Описание" 
-                multiline 
-                rows={3} 
-                fullWidth 
-                value={newQuest.description} 
-                onChange={(e) => setNewQuest({...newQuest, description: e.target.value})}
-                InputLabelProps={{ style: { color: '#aaa' } }}
-                sx={{ textarea: { color: '#fff' } }}
-              />
-            </Stack>
-          </DialogContent>
-          <DialogActions sx={{ background: '#1a1a1a' }}>
-            <Button onClick={() => setOpen(false)} color="inherit">Отмена</Button>
-            <Button type="submit" variant="contained" color="error">Создать</Button>
-          </DialogActions>
-        </form>
-      </Dialog>
+      {/* Модальное окно */}
+      {QuestModal && (
+        <QuestModal
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSave}
+          questToEdit={questToEdit}
+        />
+      )}
     </Container>
   );
 };

@@ -18,17 +18,20 @@ import GroupIcon from '@mui/icons-material/Group';
 import SpeedIcon from '@mui/icons-material/Speed';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-const QuestDetailPage = ({ quests, onSelectQuest }) => {
+const QuestDetailPage = ({ quests = [], onSelectQuest }) => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const quest = quests.find((q) => q.id === Number(id));
+  // Сравниваем через == чтобы не зависеть от типа (string/number)
+  const quest = quests.find((q) => q.id == id);
 
   if (!quest) {
     return (
       <Container sx={{ py: 6, textAlign: 'center' }}>
-        <Typography variant="h5" color="error">Квест не найден!</Typography>
-        <Button variant="contained" sx={{ mt: 2 }} onClick={() => navigate('/')}>
+        <Typography variant="h5" color="error" sx={{ mb: 2 }}>
+          Квест не найден!
+        </Typography>
+        <Button variant="contained" color="error" onClick={() => navigate('/')}>
           На главную
         </Button>
       </Container>
@@ -66,8 +69,8 @@ const QuestDetailPage = ({ quests, onSelectQuest }) => {
               </Typography>
 
               <Stack direction="row" spacing={1} alignItems="center">
-                <Rating value={quest.rating} precision={0.1} readOnly />
-                <Typography color="gray">({quest.rating} из 5)</Typography>
+                <Rating value={quest.rating || 5} precision={0.1} readOnly />
+                <Typography color="gray">({quest.rating || 5} из 5)</Typography>
               </Stack>
 
               <Divider sx={{ borderColor: '#444' }} />
@@ -96,6 +99,7 @@ const QuestDetailPage = ({ quests, onSelectQuest }) => {
                   {quest.price} BYN
                 </Typography>
                 
+                {/* Вызываем BookingModal при клике */}
                 <Button 
                   variant="contained" 
                   color="error" 
