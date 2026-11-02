@@ -1,10 +1,11 @@
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, Box, Badge, IconButton, Tooltip } from '@mui/material';
+import { AppBar, Toolbar, Button, Box, Badge, IconButton, Tooltip } from '@mui/material';
 import { Link } from 'react-router-dom';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import LanguageIcon from '@mui/icons-material/Language';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
+import logo from '../../assets/IQav-Photoroom.png'; // Убедись, что путь к картинке верный
 
 const Header = () => {
   const { t, i18n } = useTranslation();
@@ -21,19 +22,23 @@ const Header = () => {
   return (
     <AppBar position="static" sx={{ backgroundColor: '#181818', borderBottom: '1px solid #333' }}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Typography 
-          variant="h6" 
-          component={Link} 
-          to="/" 
-          sx={{ color: '#e74c3c', textDecoration: 'none', fontWeight: 'bold' }}
-        >
-          ExtraQuest BY
-        </Typography>
+        {/* Логотип-картинка вместо текста */}
+        <Box component={Link} to="/" sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none', py: 1 }}>
+          <img 
+            src={logo} 
+            alt="InsideQuest" 
+            style={{ height: '38px', objectFit: 'contain' }} 
+          />
+        </Box>
 
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          {/* Квесты с сердечком */}
+          {/* Кнопка Квесты */}
           <Button color="inherit" component={Link} to="/">
             {t('quests', 'Квесты')}
+          </Button>
+
+          {/* Кнопка Понравившиеся с сердечком и бэйджем */}
+          <Button color="inherit" component={Link} to="/favorites">
             <Badge badgeContent={favoriteCount} color="error" sx={{ ml: 1.5 }}>
               <FavoriteIcon fontSize="small" />
             </Badge>

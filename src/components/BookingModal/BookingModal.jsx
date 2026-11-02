@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -28,10 +27,13 @@ const weekdaysNames = ['Воскресенье', 'Понедельник', 'Вт
 
 const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
   const [selectedSlot, setSelectedSlot] = useState(null);
-  const [viewedBooking, setViewedBooking] = useState(null); // Данные забронировавшего для Админа
+  const [viewedBooking, setViewedBooking] = useState(null); 
   const [dayOffset, setDayOffset] = useState(0);
-  const [bookingType, setBookingType] = useState('client'); // 'client' (обычная) или 'tech' (тех-бронь)
+  const [bookingType, setBookingType] = useState('client'); 
   
+  // Список бронирований, полученный с бэкенда
+  const [serverBookings, setServerBookings] = useState([]);
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -40,11 +42,26 @@ const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
     players: '2',
   });
 
-  const adminSchedules = useSelector((state) => state.schedules?.items || {});
+  // Загружаем брони с сервера при открытии модального окна
+  const fetchBookingsFromBackend = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/bookings');
+      const data = await res.json();
+      setServerBookings(data);
+    } catch (err) {
+      console.error('Ошибка загрузки броней с сервера:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (open) {
+      fetchBookingsFromBackend();
+    }
+  }, [open]);
 
   if (!quest) return null;
 
-  // Динамическое расписание (в будущем загружается с сервера)
+  // Динамическое расписание с учетом данных с сервера
   const generateSchedule = () => {
     const schedule = [];
     const basePrice = Number(quest.price) || 90;
@@ -57,44 +74,60 @@ const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
       const dayNum = dateObj.getDate();
       const monthStr = monthsNames[dateObj.getMonth()];
       const weekdayStr = weekdaysNames[dateObj.getDay()];
-      const dateKey = `${dateObj.getFullYear()}-${dateObj.getMonth()}-${dateObj.getDate()}`;
+      
+      // Формат даты для сопоставления (например, "2026-11-03")
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      const dateKeyStr = `${year}-${month}-${day}`;
 
-      // Пример структуры с данными бронирования
       const defaultSlots = [
-        { 
-          time: '12:00', price: basePrice, available: false, isTech: false,
-          bookingInfo: { name: 'Иван Иванов', phone: '+375 (29) 111-22-33', email: 'ivan@mail.ru', players: 4, comment: 'День рождения' } 
-        },
-        { time: '13:30', price: basePrice, available: true },
-        { 
-          time: '15:00', price: basePrice, available: false, isTech: true,
-          bookingInfo: { comment: 'Технический перерыв (уборка/ремонт)' } 
-        },
-        { time: '16:30', price: basePrice + 10, available: true },
-        { time: '18:00', price: basePrice + 15, available: true },
-        { time: '19:30', price: basePrice + 20, available: true },
-        { time: '21:00', price: basePrice + 20, available: true },
+        { time: '12:00', price: basePrice },
+        { time: '13:30', price: basePrice },
+        { time: '15:00', price: basePrice },
+        { time: '16:30', price: basePrice + 10 },
+        { time: '18:00', price: basePrice + 15 },
+        { time: '19:30', price: basePrice + 20 },
+        { time: '21:00', price: basePrice + 20 },
       ];
 
-      const questAdminSlots = adminSchedules[quest.id]?.[dateKey] || defaultSlots;
+      const processedSlots = defaultSlots.map((slot) => {
+        // Проверяем, есть ли этот слот в базе сервера для этого квеста и даты
+        const foundBooking = serverBookings.find(
+          b => b.questId === quest.id && b.date === `${dateKeyStr}T${slot.time}`
+        );
 
-      const processedSlots = questAdminSlots.map((slot) => {
-        if (!slot.available) return slot;
+        if (foundBooking) {
+          return {
+            ...slot,
+            available: false,
+            isTech: foundBooking.isTech || false,
+            bookingInfo: {
+              name: foundBooking.userName,
+              phone: foundBooking.phone || 'Не указан',
+              email: foundBooking.email || 'Не указан',
+              players: foundBooking.players || 2,
+              comment: foundBooking.comment || ''
+            }
+          };
+        }
 
+        // Проверка на прошедшее время
         const [hours, minutes] = slot.time.split(':').map(Number);
         const slotDate = new Date(dateObj);
         slotDate.setHours(hours, minutes, 0, 0);
-
         const diffHours = (slotDate.getTime() - now.getTime()) / (1000 * 60 * 60);
 
         return {
           ...slot,
-          available: diffHours >= 1
+          available: diffHours >= 1,
+          isTech: false
         };
       });
 
       schedule.push({
         id: `${dayOffset}-${i}`,
+        dateKey: dateKeyStr,
         date: `${dayNum} ${monthStr}`,
         day: weekdayStr,
         slots: processedSlots
@@ -106,7 +139,6 @@ const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
   const currentSchedule = generateSchedule();
 
   const handleSlotClick = (slot, row) => {
-    // Если слот занят И кликает админ -> Показываем данные забронировавшего
     if (!slot.available) {
       if (isAdmin && slot.bookingInfo) {
         setViewedBooking({
@@ -119,8 +151,8 @@ const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
       return;
     }
 
-    // Если слот свободен -> Переходим к заполнению
     setSelectedSlot({
+      dateKey: row.dateKey, // "2026-11-03"
       date: row.date,
       day: row.day,
       time: slot.time,
@@ -128,16 +160,42 @@ const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
     });
   };
 
-  const handleSubmitBooking = (e) => {
+  // Отправка бронирования на бэкенд (POST)
+  const handleSubmitBooking = async (e) => {
     e.preventDefault();
 
-    if (bookingType === 'tech') {
-      alert(`Слот ${selectedSlot.date} в ${selectedSlot.time} успешно закрыт ТЕХ-БРОНЬЮ!`);
-    } else {
-      alert(`Квест "${quest.title}" забронирован!\nДата: ${selectedSlot.date}, Время: ${selectedSlot.time}\nКлиент: ${formData.name}`);
-    }
+    const dateTimeIso = `${selectedSlot.dateKey}T${selectedSlot.time}`;
 
-    handleCloseModal();
+    try {
+      const response = await fetch('http://localhost:3000/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questId: quest.id,
+          questTitle: quest.title,
+          userName: bookingType === 'tech' ? 'Техническая служба' : formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          players: formData.players,
+          comment: formData.comment,
+          date: dateTimeIso,
+          isTech: bookingType === 'tech'
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.error || 'Ошибка при бронировании');
+      } else {
+        alert(bookingType === 'tech' ? 'Слот успешно закрыт тех-бронью!' : 'Квест успешно забронирован!');
+        setServerBookings(result.bookings); // Обновляем список броней с сервера
+        handleCloseModal();
+      }
+    } catch (err) {
+      console.error('Ошибка сети:', err);
+      alert('Не удалось связаться с сервером. Убедитесь, что сервер запущен.');
+    }
   };
 
   const handleCloseModal = () => {
@@ -145,6 +203,7 @@ const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
     setViewedBooking(null);
     setBookingType('client');
     setDayOffset(0);
+    setFormData({ name: '', phone: '', email: '', comment: '', players: '2' });
     onClose();
   };
 
@@ -166,7 +225,6 @@ const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
       <Divider sx={{ borderColor: '#333' }} />
 
       <DialogContent sx={{ py: 3 }}>
-        {/* РЕЖИМ 1: ПРОСМОТР ДАННЫХ ЗАНЯТОГО СЛОТА (ДЛЯ АДМИНА) */}
         {viewedBooking ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Button startIcon={<ArrowBackIcon />} onClick={() => setViewedBooking(null)} sx={{ alignSelf: 'flex-start', color: '#e74c3c' }}>
@@ -190,15 +248,8 @@ const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
                 <Typography><strong>Причина закрытия:</strong> {viewedBooking.comment || 'Технические работы'}</Typography>
               )}
             </Paper>
-
-            {isAdmin && (
-              <Button variant="outlined" color="error" onClick={() => { alert('Бронь отменена'); setViewedBooking(null); }}>
-                Снять бронь / Открыть слот
-              </Button>
-            )}
           </Box>
         ) : !selectedSlot ? (
-          /* РЕЖИМ 2: СЕТКА ВРЕМЕНИ */
           <Box>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 3, mb: 3 }}>
               <Button 
@@ -261,19 +312,17 @@ const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
             ))}
           </Box>
         ) : (
-          /* РЕЖИМ 3: СОЗДАНИЕ БРОНИ (ОБЫЧНАЯ ИЛИ ТЕХНИЧЕСКАЯ) */
           <Box component="form" onSubmit={handleSubmitBooking} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <Button startIcon={<ArrowBackIcon />} onClick={() => setSelectedSlot(null)} sx={{ alignSelf: 'flex-start', color: '#e74c3c', p: 0 }}>
               Вернуться к выбору времени
             </Button>
 
-            {/* Выбор типа брони для Администратора */}
             {isAdmin && (
               <Box sx={{ p: 2, backgroundColor: '#2a2a2a', borderRadius: 2 }}>
                 <Typography variant="subtitle2" sx={{ mb: 1, color: '#aaa' }}>Тип бронирования:</Typography>
                 <RadioGroup row value={bookingType} onChange={(e) => setBookingType(e.target.value)}>
-                  <FormControlLabel value="client" control={<Radio sx={{ color: '#e74c3c', '&.Mui-focused': { color: '#e74c3c' } }} />} label="Обычная бронь (Клиент)" />
-                  <FormControlLabel value="tech" control={<Radio sx={{ color: '#ff9800', '&.Mui-focused': { color: '#ff9800' } }} />} label="Тех-бронь (Закрыть слот)" />
+                  <FormControlLabel value="client" control={<Radio sx={{ color: '#e74c3c' }} />} label="Обычная бронь (Клиент)" />
+                  <FormControlLabel value="tech" control={<Radio sx={{ color: '#ff9800' }} />} label="Тех-бронь (Закрыть слот)" />
                 </RadioGroup>
               </Box>
             )}
@@ -297,7 +346,7 @@ const BookingModal = ({ open, onClose, quest, isAdmin = false }) => {
                 </Grid>
               </Grid>
             ) : (
-              <TextField fullWidth label="Причина закрытия / Примечание" name="comment" multiline rows={3} placeholder="Например: Ремонт реквизита или санитарный час" value={formData.comment} onChange={(e) => setFormData({...formData, comment: e.target.value})} InputLabelProps={{ style: { color: '#aaa' } }} sx={{ textarea: { color: '#fff' } }} />
+              <TextField fullWidth label="Причина закрытия / Примечание" name="comment" multiline rows={3} placeholder="Например: Ремонт реквизита" value={formData.comment} onChange={(e) => setFormData({...formData, comment: e.target.value})} InputLabelProps={{ style: { color: '#aaa' } }} sx={{ textarea: { color: '#fff' } }} />
             )}
 
             <Button type="submit" variant="contained" size="large" sx={{ mt: 2, backgroundColor: bookingType === 'tech' ? '#ff9800' : '#e74c3c', color: '#fff', fontWeight: 'bold' }}>

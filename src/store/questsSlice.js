@@ -60,11 +60,11 @@ const questsSlice = createSlice({
     addQuest: (state, action) => {
       const newQuest = {
         ...action.payload,
-        id: Date.now(),
+        id: Date.now(),//уникальный айди
         rating: Number(action.payload.rating) || 5.0,
         price: Number(action.payload.price) || 100
       };
-      state.items.push(newQuest);
+      state.items.push(newQuest);//сохранение в массив
     },
     updateQuest: (state, action) => {
       const index = state.items.findIndex((q) => q.id === action.payload.id);

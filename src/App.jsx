@@ -5,6 +5,7 @@ import { Box, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import Header from './components/Header/Header';
 import Footer from './components/Footer/Footer';
 import HomePage from './pages/HomePage';
+import FavoritesPage from './pages/FavoritesPage'; // Импортируем страницу избранного
 import AdminPage from './pages/AdminPage';
 import NotFoundPage from './pages/NotFoundPage';
 import QuestDetailPage from './pages/QuestDetailPage';
@@ -35,6 +36,10 @@ function App() {
         <Box sx={{ flexGrow: 1 }}>
           <Routes>
             <Route path="/" element={<HomePage onSelectQuest={setSelectedQuest} />} />
+            
+            {/* Страница понравившихся квестов */}
+            <Route path="/favorites" element={<FavoritesPage onSelectQuest={setSelectedQuest} />} />
+
             <Route path="/admin" element={<AdminPage />} />
             
             {/* Страница подробной информации о квесте */}
