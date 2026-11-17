@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "id": 1730000000000,
+    "name": "Алексей",
+    "email": "admin@insidequest.by",
+    "phone": "+375 (29) 123-45-67",
+    "password": "123",
+    "isAdmin": true
+  }
+]

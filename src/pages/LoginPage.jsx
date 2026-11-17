@@ -11,7 +11,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:3000/api/login', {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -23,9 +23,8 @@ const LoginPage = () => {
         alert(data.error || 'Ошибка входа');
       } else {
         alert(`Добро пожаловать, ${data.user.name}!`);
-        // Сохраняем данные пользователя в localStorage, чтобы сайт знал, кто вошел
         localStorage.setItem('user', JSON.stringify(data.user));
-        navigate('/'); // Перенаправляем на главную
+        window.location.href = '/'; // Обновляем страницу для перезагрузки хедера
       }
     } catch (err) {
       console.error('Ошибка сети:', err);
@@ -37,7 +36,7 @@ const LoginPage = () => {
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       <Paper sx={{ p: 4, backgroundColor: '#1e1e1e', color: '#fff', borderRadius: 3 }}>
         <Typography variant="h5" align="center" sx={{ fontWeight: 'bold', mb: 3 }}>
-          Вход в InsideQuest
+          Вход в аккаунт
         </Typography>
 
         <Box component="form" onSubmit={handleLogin} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
@@ -64,8 +63,12 @@ const LoginPage = () => {
             Войти
           </Button>
 
+          {/* Ссылка на регистрацию */}
           <Typography variant="body2" align="center" sx={{ color: '#aaa', mt: 1 }}>
-            Нет аккаунта? <Link to="/register" style={{ color: '#e74c3c', textDecoration: 'none' }}>Зарегистрироваться</Link>
+            Еще нет аккаунта?{' '}
+            <Link to="/register" style={{ color: '#e74c3c', textDecoration: 'none', fontWeight: 'bold' }}>
+              Зарегистрироваться
+            </Link>
           </Typography>
         </Box>
       </Paper>

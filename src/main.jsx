@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { BrowserRouter } from 'react-router-dom';//  роутер
-import { store } from './store/store';
+import { BrowserRouter } from 'react-router-dom';
+import { store } from './redux/store'; // или './store/store' в зависимости от твоего пути к стору
 import App from './App.jsx';
 import './index.css';
 import './i18n';

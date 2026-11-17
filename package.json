@@ -14,7 +14,8 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.4.0",
     "@mui/material": "^9.4.0",
-    "@reduxjs/toolkit": "^2.13.0",
+    "@reduxjs/toolkit": "^2.14.0",
+    "axios": "^1.21.1",
     "cors": "^2.8.6",
     "express": "^5.3.0",
     "i18next": "^26.4.2",
@@ -22,8 +23,8 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-i18next": "^17.0.15",
-    "react-redux": "^9.3.0",
-    "react-router-dom": "^7.18.4"
+    "react-redux": "^9.3.1",
+    "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

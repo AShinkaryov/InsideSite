@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Container,
@@ -16,10 +16,15 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useTranslation } from 'react-i18next';
 import QuestCard from '../components/QuestCard/QuestCard';
 import { toggleFavorite } from '../store/favoritesSlice';
+import { fetchQuests } from '../redux/questSlice';
 
 const HomePage = ({ onSelectQuest }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchQuests());
+  }, [dispatch]);
 
   const quests = useSelector((state) => {
     if (Array.isArray(state.quests?.items)) return state.quests.items;
